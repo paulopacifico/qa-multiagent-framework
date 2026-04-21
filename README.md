@@ -1,6 +1,6 @@
 # QA Multi-Agent Framework
 
-A multi-agent quality gate system built with TypeScript that automatically validates every phase of a software project before work advances. Each phase — spec, plan, code, and CI — is reviewed by a dedicated QA agent that produces a structured gate report. A central Orchestrator enforces the gate decision, blocking progression on failure.
+A multi-agent quality gate system built with TypeScript. It validates every phase of a software project before work advances. Each phase is reviewed by a dedicated QA agent that produces a structured gate report. A central Orchestrator enforces the gate decision, blocking progression on failure.
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
@@ -17,7 +17,7 @@ A multi-agent quality gate system built with TypeScript that automatically valid
 
 ## Overview
 
-Traditional QA happens after the code is written. This framework moves quality checks to every transition point in the development lifecycle — from the moment a requirement is written to the final CI run.
+Traditional QA happens after the code is written. This framework moves quality checks to every transition point in the development lifecycle, from the moment a requirement is written to the final CI run.
 
 Each agent operates independently, applies a deterministic checklist, and returns a typed `GateReport`. The Orchestrator reads the report and either allows the phase to proceed or throws a `GateBlockedError` that halts the pipeline.
 
@@ -38,7 +38,7 @@ Orchestrator
 |--------|----------|
 | `PASS` | Phase advances |
 | `WARN` | Blocked unless `accept_warn: true` and a written `acceptance_reason` are provided |
-| `FAIL` | Unconditionally blocked — no override |
+| `FAIL` | Unconditionally blocked, no override |
 
 All gate reports are persisted as JSON files for audit traceability.
 
@@ -145,7 +145,7 @@ src/
 │   ├── qa-code/          # Validates PR files for POM compliance and TypeScript standards
 │   └── qa-ci/            # Validates GitHub Actions run results
 ├── orchestrator/
-│   ├── index.ts          # Entry point — routes, runs agent, persists report, enforces gate
+│   ├── index.ts          # Entry point: routes, runs agent, persists report, enforces gate
 │   ├── router.ts         # Maps Phase to agent function
 │   ├── gate-enforcer.ts  # PASS/WARN/FAIL decision logic
 │   └── gate-persister.ts # Writes gate report JSON to disk
@@ -167,7 +167,7 @@ qa-gates/                 # Persisted gate reports (generated at runtime)
 
 .github/
 └── workflows/
-    └── qa-gates.yml      # CI pipeline — unit tests + E2E + Allure upload
+    └── qa-gates.yml      # CI pipeline: unit tests, E2E, Allure upload
 ```
 
 ---
