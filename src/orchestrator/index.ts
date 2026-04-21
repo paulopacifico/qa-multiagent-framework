@@ -1,8 +1,8 @@
 import fs from 'fs';
-import path from 'path';
 import { Phase, GateDecision } from '../types';
 import { resolveAgent } from './router';
 import { enforceGate, GateBlockedError } from './gate-enforcer';
+import { persistGateReport } from './gate-persister';
 import { runQaSpecAgent } from '../agents/qa-spec';
 
 export interface OrchestratorRequest {
@@ -30,9 +30,7 @@ export async function orchestrate(request: OrchestratorRequest): Promise<GateDec
     throw new Error(`Direct file-based orchestration for phase "${phase}" not yet implemented. Use agent-specific runners.`);
   }
 
-  fs.mkdirSync(gates_dir, { recursive: true });
-  const gateFile = path.join(gates_dir, `${phase}-gate.json`);
-  fs.writeFileSync(gateFile, JSON.stringify(report, null, 2));
+  persistGateReport(report, gates_dir);
 
   return enforceGate(report, accept_warn, acceptance_reason);
 }
