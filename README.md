@@ -130,21 +130,30 @@ Example FAIL report:
 ```
 src/
 ├── agents/
-│   ├── qa-spec/        # Spec validation agent
-│   ├── qa-plan/        # Plan validation agent
-│   ├── qa-code/        # Code review agent
-│   └── qa-ci/          # CI result validation agent
+│   ├── qa-spec/         # Spec validation agent
+│   ├── qa-plan/         # Plan validation agent
+│   ├── qa-code/         # Code review agent
+│   └── qa-ci/           # CI result validation agent
 ├── orchestrator/
-│   ├── index.ts        # Orchestrator entry point
-│   ├── router.ts       # Phase-to-agent routing
-│   └── gate-enforcer.ts # PASS/WARN/FAIL enforcement
+│   ├── index.ts         # Orchestrator entry point
+│   ├── router.ts        # Phase-to-agent routing
+│   ├── gate-enforcer.ts # PASS/WARN/FAIL enforcement
+│   └── gate-persister.ts # Gate report JSON persistence
 └── types/
-    └── gate-report.ts  # Shared TypeScript interfaces
+    └── gate-report.ts   # Shared TypeScript interfaces
 
 tests/
-├── unit/               # 46 unit tests (Jest + ts-jest)
-└── specs/              # Playwright E2E tests
-    └── pages/          # Page Object Model classes
+├── unit/                # 53 unit tests (Jest + ts-jest)
+├── pages/               # Page Object Model classes
+└── specs/               # Playwright E2E tests
+
+scripts/
+└── run-gates.ts         # Run full QA gate pipeline locally
+
+qa-gates/                # Persisted gate reports (generated)
+├── spec-gate.json
+├── plan-gate.json
+└── code-gate.json
 ```
 
 ---
@@ -165,6 +174,12 @@ Run E2E tests:
 
 ```bash
 npm run test:e2e
+```
+
+Run the full QA gate pipeline locally:
+
+```bash
+npx ts-node -P tsconfig.test.json scripts/run-gates.ts
 ```
 
 Type check:
