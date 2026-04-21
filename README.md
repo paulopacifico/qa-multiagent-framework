@@ -1,6 +1,6 @@
 # QA Multi-Agent Framework
 
-A multi-agent quality gate system built with TypeScript that automatically reviews every phase of a software project before work advances. Each phase — spec, plan, code, and CI — is validated by a dedicated QA agent that produces a structured gate report. A central Orchestrator enforces the gate decision, blocking progression on any failure.
+A multi-agent quality gate system built with TypeScript that automatically validates every phase of a software project before work advances. Each phase — spec, plan, code, and CI — is reviewed by a dedicated QA agent that produces a structured gate report. A central Orchestrator enforces the gate decision, blocking progression on failure.
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
@@ -9,27 +9,45 @@ A multi-agent quality gate system built with TypeScript that automatically revie
 ![Allure](https://img.shields.io/badge/Allure-FF6347?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xMiAyTDIgMjJoMjBMMTIgMnoiLz48L3N2Zz4=&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
 
+[![CI](https://github.com/paulopacifico/qa-multiagent-framework/actions/workflows/qa-gates.yml/badge.svg)](https://github.com/paulopacifico/qa-multiagent-framework/actions/workflows/qa-gates.yml)
+![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
+![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen?style=flat-square)
+
 ---
 
-## How It Works
+## Overview
+
+Traditional QA happens after the code is written. This framework moves quality checks to every transition point in the development lifecycle — from the moment a requirement is written to the final CI run.
+
+Each agent operates independently, applies a deterministic checklist, and returns a typed `GateReport`. The Orchestrator reads the report and either allows the phase to proceed or throws a `GateBlockedError` that halts the pipeline.
 
 ```
 Orchestrator
-    |
-    |-- spec  --> QA-Spec Agent  --> spec-gate.json
-    |-- plan  --> QA-Plan Agent  --> plan-gate.json
-    |-- code  --> QA-Code Agent  --> code-gate.json
-    |-- ci    --> QA-CI Agent    --> ci-gate.json
+    │
+    ├── spec  ──► QA-Spec Agent  ──► spec-gate.json
+    ├── plan  ──► QA-Plan Agent  ──► plan-gate.json
+    ├── code  ──► QA-Code Agent  ──► code-gate.json
+    └── ci    ──► QA-CI Agent    ──► ci-gate.json
 ```
 
-Every agent returns a `GateReport` with status `PASS`, `WARN`, or `FAIL`. The Orchestrator reads the report and either allows the phase to proceed or throws a `GateBlockedError` that stops the pipeline entirely.
+---
+
+## Gate Rules
+
+| Status | Behavior |
+|--------|----------|
+| `PASS` | Phase advances |
+| `WARN` | Blocked unless `accept_warn: true` and a written `acceptance_reason` are provided |
+| `FAIL` | Unconditionally blocked — no override |
+
+All gate reports are persisted as JSON files for audit traceability.
 
 ---
 
 ## Agents
 
 ### QA-Spec
-Validates the feature specification file before any technical planning begins.
+Validates the feature specification before any technical planning begins.
 
 | Finding | Severity |
 |---------|----------|
@@ -82,7 +100,7 @@ interface GateReport {
   status: 'PASS' | 'WARN' | 'FAIL';
   findings: Finding[];
   recommendation: string;
-  timestamp: string;
+  timestamp: string; // ISO 8601
 }
 
 interface Finding {
@@ -94,7 +112,7 @@ interface Finding {
 }
 ```
 
-Example FAIL report:
+Example output:
 
 ```json
 {
@@ -117,79 +135,76 @@ Example FAIL report:
 
 ---
 
-## Gate Rules
-
-- `FAIL` blocks phase progression unconditionally, no override possible.
-- `WARN` blocks by default. Allowed to proceed only with explicit `accept_warn: true` and a written `acceptance_reason`.
-- All gate reports are persisted as JSON files for audit purposes.
-
----
-
 ## Project Structure
 
 ```
 src/
 ├── agents/
-│   ├── qa-spec/         # Spec validation agent
-│   ├── qa-plan/         # Plan validation agent
-│   ├── qa-code/         # Code review agent
-│   └── qa-ci/           # CI result validation agent
+│   ├── qa-spec/          # Validates spec.md against constitution rules
+│   ├── qa-plan/          # Validates plan.md for requirement coverage and architecture
+│   ├── qa-code/          # Validates PR files for POM compliance and TypeScript standards
+│   └── qa-ci/            # Validates GitHub Actions run results
 ├── orchestrator/
-│   ├── index.ts         # Orchestrator entry point
-│   ├── router.ts        # Phase-to-agent routing
-│   ├── gate-enforcer.ts # PASS/WARN/FAIL enforcement
-│   └── gate-persister.ts # Gate report JSON persistence
+│   ├── index.ts          # Entry point — routes, runs agent, persists report, enforces gate
+│   ├── router.ts         # Maps Phase to agent function
+│   ├── gate-enforcer.ts  # PASS/WARN/FAIL decision logic
+│   └── gate-persister.ts # Writes gate report JSON to disk
 └── types/
-    └── gate-report.ts   # Shared TypeScript interfaces
+    └── gate-report.ts    # Shared TypeScript interfaces
 
 tests/
-├── unit/                # 53 unit tests (Jest + ts-jest)
-├── pages/               # Page Object Model classes
-└── specs/               # Playwright E2E tests
+├── unit/                 # 53 unit tests (Jest + ts-jest)
+├── pages/                # Page Object Model classes
+└── specs/                # Playwright E2E tests
 
 scripts/
-└── run-gates.ts         # Run full QA gate pipeline locally
+└── run-gates.ts          # Run the full QA gate pipeline locally
 
-qa-gates/                # Persisted gate reports (generated)
+qa-gates/                 # Persisted gate reports (generated at runtime)
 ├── spec-gate.json
 ├── plan-gate.json
 └── code-gate.json
+
+.github/
+└── workflows/
+    └── qa-gates.yml      # CI pipeline — unit tests + E2E + Allure upload
 ```
 
 ---
 
 ## Getting Started
 
+**Requirements:** Node.js >= 20
+
 ```bash
+git clone https://github.com/paulopacifico/qa-multiagent-framework.git
+cd qa-multiagent-framework
 npm install
 ```
 
-Run unit tests:
+Install Playwright browsers:
 
 ```bash
-npm test
+npx playwright install chromium
 ```
 
-Run E2E tests:
+---
 
-```bash
-npm run test:e2e
-```
+## Usage
 
-Run the full QA gate pipeline locally:
+| Command | Description |
+|---------|-------------|
+| `npm test` | Run all 53 unit tests |
+| `npm run test:e2e` | Run Playwright E2E suite |
+| `npm run gates` | Run the full QA gate pipeline locally |
+| `npm run typecheck` | TypeScript strict check |
+| `npm run lint` | ESLint check |
+| `npm run format` | Prettier format |
+| `npm run build` | Compile to `dist/` |
+| `npm run ci` | Full CI check: typecheck + lint + tests |
 
-```bash
-npx ts-node -P tsconfig.test.json scripts/run-gates.ts
-```
+---
 
-Type check:
+## License
 
-```bash
-npm run typecheck
-```
-
-Build:
-
-```bash
-npm run build
-```
+MIT
