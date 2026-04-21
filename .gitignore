@@ -1,6 +1,6 @@
 # AI planning and spec-kit artifacts
 .specify/
-specs/
+/specs/
 .claude/
 CLAUDE.md
 
