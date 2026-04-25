@@ -4,7 +4,11 @@ import { runQaPlanAgent } from '../agents/qa-plan';
 import { runQaCodeAgent } from '../agents/qa-code';
 import { runQaCiAgent } from '../agents/qa-ci';
 
-type AgentFn = typeof runQaSpecAgent | typeof runQaPlanAgent | typeof runQaCodeAgent | typeof runQaCiAgent;
+type AgentFn =
+  | typeof runQaSpecAgent
+  | typeof runQaPlanAgent
+  | typeof runQaCodeAgent
+  | typeof runQaCiAgent;
 
 const AGENT_MAP: Record<Phase, AgentFn> = {
   spec: runQaSpecAgent,

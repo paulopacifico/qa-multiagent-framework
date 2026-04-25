@@ -27,7 +27,9 @@ export interface OrchestratorRequest {
   artifact_path: string;
   phase: Phase;
   feature_id: string;
+  gates_dir?: string;
   accept_warn?: boolean;
+  acceptance_reason?: string;
 }
 
 export interface GateDecision {

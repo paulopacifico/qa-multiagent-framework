@@ -13,9 +13,10 @@
     "format:check": "prettier --check \"src/**/*.ts\" \"scripts/**/*.ts\" \"tests/**/*.ts\"",
     "test": "jest",
     "test:unit": "jest tests/unit",
+    "pretest:e2e": "node -e \"const fs = require('fs'); for (const dir of ['allure-results', 'test-results', 'playwright-report']) fs.rmSync(dir, { recursive: true, force: true });\"",
     "test:e2e": "playwright test",
     "gates": "ts-node -P tsconfig.test.json scripts/run-gates.ts",
-    "ci": "npm run typecheck && npm run lint && npm run test && npm run test:e2e"
+    "ci": "npm run typecheck && npm run lint && npm run test && npm run test:e2e && npm run gates"
   },
   "jest": {
     "preset": "ts-jest",

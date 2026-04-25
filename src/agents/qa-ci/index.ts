@@ -29,7 +29,8 @@ export async function runQaCiAgent(run: CiRunResult): Promise<GateReport> {
     findings.push({
       type: 'MISSING_ALLURE_ARTIFACT',
       severity: 'FAIL',
-      message: 'Allure report artifact was not uploaded in CI. Check the upload step in qa-gates.yml.',
+      message:
+        'Allure report artifact was not uploaded in CI. Check the upload step in qa-gates.yml.',
       constitution_ref: 'Principle I: Shift-Left Quality',
     });
   }

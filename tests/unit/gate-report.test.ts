@@ -1,4 +1,10 @@
-import { GateReport, Finding, Phase, GateStatus, FindingSeverity } from '../../src/types/gate-report';
+import {
+  GateReport,
+  Finding,
+  Phase,
+  GateStatus,
+  FindingSeverity,
+} from '../../src/types/gate-report';
 
 describe('GateReport type contract', () => {
   it('accepts a valid PASS gate report with no findings', () => {

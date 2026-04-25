@@ -127,6 +127,50 @@ test('something happens', async ({ page }) => {
     expect(report.findings.some((f) => f.type === 'UNMAPPED_TEST')).toBe(true);
   });
 
+  it('returns WARN with MISSING_ALLURE_ANNOTATION when a mapped test has no Allure annotation', async () => {
+    const input: CodeInput = {
+      files: [
+        {
+          path: 'tests/specs/mapped.spec.ts',
+          content: `
+import { test } from '@playwright/test';
+test('FR-001: mapped without allure', async () => {
+  // test body
+});
+`,
+        },
+      ],
+    };
+    const report = await runQaCodeAgent(input);
+    expect(report.status).toBe('WARN');
+    expect(report.findings.some((f) => f.type === 'MISSING_ALLURE_ANNOTATION')).toBe(true);
+    expect(report.findings.some((f) => f.type === 'UNMAPPED_TEST')).toBe(false);
+  });
+
+  it('validates mapping and Allure annotation per individual test block', async () => {
+    const input: CodeInput = {
+      files: [
+        {
+          path: 'tests/specs/mixed.spec.ts',
+          content: `
+import { test } from '@playwright/test';
+import { allure } from 'allure-playwright';
+test('FR-001: mapped test', async () => {
+  allure.label('FR-001');
+});
+test('unmapped test', async () => {
+  // missing mapping and allure annotation
+});
+`,
+        },
+      ],
+    };
+    const report = await runQaCodeAgent(input);
+    expect(report.status).toBe('WARN');
+    expect(report.findings.filter((f) => f.type === 'UNMAPPED_TEST')).toHaveLength(1);
+    expect(report.findings.filter((f) => f.type === 'MISSING_ALLURE_ANNOTATION')).toHaveLength(1);
+  });
+
   it('includes a valid ISO 8601 timestamp', async () => {
     const report = await runQaCodeAgent(CLEAN_FILES);
     expect(new Date(report.timestamp).toISOString()).toBe(report.timestamp);

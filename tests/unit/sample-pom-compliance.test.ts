@@ -12,10 +12,7 @@ function loadFile(relativePath: string): { path: string; content: string } {
 describe('Sample POM compliance', () => {
   it('QA-Code agent returns PASS for the sample POM and spec files', async () => {
     const input: CodeInput = {
-      files: [
-        loadFile('tests/pages/sample.page.ts'),
-        loadFile('tests/specs/sample.spec.ts'),
-      ],
+      files: [loadFile('tests/pages/sample.page.ts'), loadFile('tests/specs/sample.spec.ts')],
     };
     const report = await runQaCodeAgent(input);
     expect(report.status).toBe('PASS');

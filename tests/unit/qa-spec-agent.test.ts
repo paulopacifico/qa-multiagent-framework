@@ -35,7 +35,7 @@ describe('QA-Spec Agent', () => {
   it('returns FAIL with AMBIGUOUS_REQUIREMENT when a FR uses "should"', async () => {
     const spec = VALID_SPEC.replace(
       'System MUST allow users to authenticate',
-      'System should allow users to authenticate'
+      'System should allow users to authenticate',
     );
     const report = await runQaSpecAgent(spec);
     expect(report.status).toBe('FAIL');
@@ -44,7 +44,10 @@ describe('QA-Spec Agent', () => {
   });
 
   it('returns FAIL with INCOMPLETE_ARTIFACT when [NEEDS CLARIFICATION] marker is present', async () => {
-    const spec = VALID_SPEC.replace('FR-001**: System MUST', 'FR-001**: System MUST [NEEDS CLARIFICATION: which auth method?]');
+    const spec = VALID_SPEC.replace(
+      'FR-001**: System MUST',
+      'FR-001**: System MUST [NEEDS CLARIFICATION: which auth method?]',
+    );
     const report = await runQaSpecAgent(spec);
     expect(report.status).toBe('FAIL');
     expect(report.findings.some((f) => f.type === 'INCOMPLETE_ARTIFACT')).toBe(true);

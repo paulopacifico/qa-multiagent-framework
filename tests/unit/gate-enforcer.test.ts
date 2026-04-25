@@ -6,9 +6,8 @@ function makeReport(status: 'PASS' | 'WARN' | 'FAIL'): GateReport {
     phase: 'spec',
     agent: 'QA-Spec',
     status,
-    findings: status !== 'PASS'
-      ? [{ type: 'TEST_TYPE', severity: status, message: 'test finding' }]
-      : [],
+    findings:
+      status !== 'PASS' ? [{ type: 'TEST_TYPE', severity: status, message: 'test finding' }] : [],
     recommendation: 'test recommendation',
     timestamp: new Date().toISOString(),
   };
@@ -47,7 +46,7 @@ describe('Gate Enforcer', () => {
 
   it('throws when accept_warn is true but no acceptance_reason is provided', () => {
     expect(() => enforceGate(makeReport('WARN'), true)).toThrow(
-      'acceptance_reason is required when accepting a WARN gate'
+      'acceptance_reason is required when accepting a WARN gate',
     );
   });
 });

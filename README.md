@@ -153,21 +153,24 @@ src/
     └── gate-report.ts    # Shared TypeScript interfaces
 
 tests/
-├── unit/                 # 53 unit tests (Jest + ts-jest)
+├── unit/                 # 63 unit tests (Jest + ts-jest)
 ├── pages/                # Page Object Model classes
 └── specs/                # Playwright E2E tests
 
 scripts/
 └── run-gates.ts          # Run the full QA gate pipeline locally
 
-qa-gates/                 # Persisted gate reports (generated at runtime)
-├── spec-gate.json
-├── plan-gate.json
-└── code-gate.json
+specs/
+└── <feature-id>/
+    └── qa-gates/         # Persisted gate reports by feature
+        ├── spec-gate.json
+        ├── plan-gate.json
+        ├── code-gate.json
+        └── ci-gate.json
 
 .github/
 └── workflows/
-    └── qa-gates.yml      # CI pipeline: unit tests, E2E, Allure upload
+    └── qa-gates.yml      # CI pipeline: lint, tests, QA gates, Allure upload
 ```
 
 ---
@@ -194,14 +197,14 @@ npx playwright install chromium
 
 | Command | Description |
 |---------|-------------|
-| `npm test` | Run all 53 unit tests |
+| `npm test` | Run all 63 unit tests |
 | `npm run test:e2e` | Run Playwright E2E suite |
 | `npm run gates` | Run the full QA gate pipeline locally |
 | `npm run typecheck` | TypeScript strict check |
 | `npm run lint` | ESLint check |
 | `npm run format` | Prettier format |
 | `npm run build` | Compile to `dist/` |
-| `npm run ci` | Full CI check: typecheck + lint + tests |
+| `npm run ci` | Full CI check: typecheck + lint + tests + gates |
 
 ---
 

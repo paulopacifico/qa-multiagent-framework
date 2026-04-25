@@ -55,7 +55,9 @@ describe('QA-CI Agent', () => {
     const report = await runQaCiAgent(run);
     expect(report.status).toBe('WARN');
     expect(report.findings.some((f) => f.type === 'FLAKY_TEST_DETECTED')).toBe(true);
-    expect(report.findings.some((f) => f.message.includes('dashboard > loads user data'))).toBe(true);
+    expect(report.findings.some((f) => f.message.includes('dashboard > loads user data'))).toBe(
+      true,
+    );
   });
 
   it('returns FAIL (not WARN) when both TEST_FAILURES and SUITE_TIMEOUT are present', async () => {

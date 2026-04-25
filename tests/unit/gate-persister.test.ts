@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import os from 'os';
-import { persistGateReport } from '../../src/orchestrator/gate-persister';
+import { buildFeatureGatesDir, persistGateReport } from '../../src/orchestrator/gate-persister';
 import { GateReport } from '../../src/types';
 
 function makeReport(phase: GateReport['phase'], status: GateReport['status']): GateReport {
@@ -78,5 +78,23 @@ describe('Gate Persister', () => {
     const writtenPath = persistGateReport(report, tmpDir);
 
     expect(writtenPath).toBe(path.join(tmpDir, 'spec-gate.json'));
+  });
+
+  it('builds a feature-scoped QA gates directory', () => {
+    expect(buildFeatureGatesDir('001-login', tmpDir)).toBe(
+      path.join(tmpDir, 'specs', '001-login', 'qa-gates'),
+    );
+  });
+
+  it('rejects malformed gate reports before writing', () => {
+    const malformedReport = {
+      ...makeReport('spec', 'PASS'),
+      status: 'DONE',
+    } as unknown as GateReport;
+
+    expect(() => persistGateReport(malformedReport, tmpDir)).toThrow(
+      'Invalid GateReport: cannot persist malformed gate report',
+    );
+    expect(fs.existsSync(path.join(tmpDir, 'spec-gate.json'))).toBe(false);
   });
 });

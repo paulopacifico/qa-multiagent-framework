@@ -10,7 +10,7 @@ export class GateBlockedError extends Error {
 export function enforceGate(
   report: GateReport,
   accept_warn = false,
-  acceptance_reason?: string
+  acceptance_reason?: string,
 ): GateDecision {
   if (report.status === 'FAIL') {
     throw new GateBlockedError(report);

@@ -25,6 +25,9 @@ jobs:
       - name: Type check
         run: npm run typecheck
 
+      - name: Lint
+        run: npm run lint
+
       - name: Run unit tests
         run: npm run test:unit
 
@@ -50,12 +53,23 @@ jobs:
       - name: Run E2E tests
         run: npm run test:e2e
 
+      - name: Run QA gates
+        run: npm run gates
+
       - name: Upload Allure results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: allure-results
           path: allure-results/
+          retention-days: 7
+
+      - name: Upload QA gate reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-gate-reports
+          path: specs/001-senior-multiagent-architecture/qa-gates/
           retention-days: 7
 
       - name: Upload Playwright report

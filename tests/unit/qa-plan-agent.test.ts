@@ -53,6 +53,30 @@ describe('QA-Plan Agent', () => {
     expect(report.findings.some((f) => f.message.includes('FR-004'))).toBe(true);
   });
 
+  it('does not count placeholder coverage rows as covered requirements', async () => {
+    const input: PlanInput = {
+      ...VALID_PLAN,
+      planContent: `${VALID_PLAN.planContent}\n| FR-004 | TBD |\n`,
+      specRequirements: ['FR-001', 'FR-002', 'FR-003', 'FR-004'],
+    };
+    const report = await runQaPlanAgent(input);
+    expect(report.status).toBe('FAIL');
+    expect(report.findings.some((f) => f.type === 'UNCOVERED_REQUIREMENT')).toBe(true);
+    expect(report.findings.some((f) => f.message.includes('FR-004'))).toBe(true);
+  });
+
+  it('does not count table-only mappings without component implementation detail', async () => {
+    const input: PlanInput = {
+      ...VALID_PLAN,
+      planContent: `${VALID_PLAN.planContent}\n| FR-004 | SearchService |\n`,
+      specRequirements: ['FR-001', 'FR-002', 'FR-003', 'FR-004'],
+    };
+    const report = await runQaPlanAgent(input);
+    expect(report.status).toBe('FAIL');
+    expect(report.findings.some((f) => f.type === 'UNCOVERED_REQUIREMENT')).toBe(true);
+    expect(report.findings.some((f) => f.message.includes('FR-004'))).toBe(true);
+  });
+
   it('returns FAIL with POM_NOT_DECLARED when POM is not mentioned in plan', async () => {
     const input: PlanInput = {
       ...VALID_PLAN,
@@ -82,6 +106,16 @@ describe('QA-Plan Agent', () => {
     expect(report.status).toBe('FAIL');
     expect(report.findings.some((f) => f.type === 'ENTITY_MISMATCH')).toBe(true);
     expect(report.findings.some((f) => f.message.includes('Token'))).toBe(true);
+  });
+
+  it('returns WARN with ORPHANED_COMPONENT when a planned component has no requirement mapping', async () => {
+    const input: PlanInput = {
+      ...VALID_PLAN,
+      planContent: `${VALID_PLAN.planContent}\n### AuditSink\nCollects operational events.\n`,
+    };
+    const report = await runQaPlanAgent(input);
+    expect(report.status).toBe('WARN');
+    expect(report.findings.some((f) => f.type === 'ORPHANED_COMPONENT')).toBe(true);
   });
 
   it('includes a valid ISO 8601 timestamp', async () => {

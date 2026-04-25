@@ -25,7 +25,7 @@ export async function runQaSpecAgent(specContent: string): Promise<GateReport> {
   }
 
   const frNumbers = (specContent.match(/\*\*FR-(\d+)\*\*/g) ?? []).map((m) =>
-    m.replace(/\*\*/g, '')
+    m.replace(/\*\*/g, ''),
   );
   const seen = new Set<string>();
   for (const fr of frNumbers) {
